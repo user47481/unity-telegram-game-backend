@@ -1,13 +1,15 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 
-const TOKEN = "YOUR_API_TOKEN_GOES_HERE";
+const gameName = "YOUR_GAME_NAME_GOES_HERE";
+const webURL = "www.YOUR_URL.com";
+
 const server = express();
-const bot = new TelegramBot(TOKEN, { polling: true } );
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 const port = process.env.PORT || 5000;
-const gameName = "trexjump";
 
 const queries = {};
 
@@ -23,7 +25,7 @@ bot.on("callback_query", function (query) {
         bot.answerCallbackQuery(query.id, "Sorry, '" + query.game_short_name + "' is not available.");
     } else {
         queries[query.id] = query;
-    const gameurl = "https://trexgame.herokuapp.com/index.html?id=" + query.id;
+    const gameurl = `https://${webURL}/index.html?id=${query.id}`;
     bot.answerCallbackQuery(query.id, { url: gameurl });
     }
 });
