@@ -33,7 +33,8 @@ server.use(express.static(path.join(__dirname, 'public')));
 
 server.get("/highscore/:score", function(req, res, next) {
     if (!Object.hasOwnProperty.call(queries, req.query.id)) return next();
-    let query = queries[req.query.id];
+  const query = queries[req.query.id];
+  const score = parseInt(req.params.score);
     let options;
     if (query.message) {
         options = {
@@ -45,7 +46,21 @@ server.get("/highscore/:score", function(req, res, next) {
             inline_message_id: query.inline_message_id
         };
     }
-    bot.setGameScore(query.from.id, parseInt(req.params.score), options, 
-        function (err, result) {});
+  bot
+    .setGameScore(query.from.id, score, options)
+    .then((b) => {
+      return res.status(200).send("Score added successfully");
+    })
+    .catch((err) => {
+      if (
+        err.response.body.description === "Bad Request: BOT_SCORE_NOT_MODIFIED"
+      ) {
+        return res
+          .status(204)
+          .send("New score is inferior to user's previous one");
+      }
+      return res.status(500);
+    });
+  return;
 });
 server.listen(port);
