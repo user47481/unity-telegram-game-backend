@@ -1,1 +1,1 @@
-# T-Rex Telegram Game
+# Unity Telegram Game - Backend
