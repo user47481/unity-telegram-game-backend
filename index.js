@@ -11,7 +11,22 @@ const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
 const port = process.env.PORT || 5000;
 
+const SCORE_TOKEN = process.env.SCORE_TOKEN.split(";").map((t) => BigInt(t));
+
 const queries = {};
+
+function addAllNumbers(number) {
+  const strNumber = number.toString();
+
+  if (strNumber.length === 1) return number;
+
+  const numbers = strNumber.split("");
+  var sum = 0;
+  for (var i = 0; i < numbers.length; i++) {
+    sum += parseInt(numbers[i], 10);
+  }
+  return addAllNumbers(sum);
+}
 
 bot.onText(/\/help/, (msg) =>
   bot.sendMessage(
@@ -43,8 +58,9 @@ server.use(express.static(path.join(__dirname, "public")));
 server.get("/highscore/:score", function (req, res, next) {
   if (!Object.hasOwnProperty.call(queries, req.query.id)) return next();
 
-  const query = queries[req.query.id];
-  const score = parseInt(req.params.score);
+  const token = SCORE_TOKEN[addAllNumbers(BigInt(req.query.id)) - 1];
+
+  let query = queries[req.query.id];
 
   let options;
   if (query.message) {
@@ -58,21 +74,36 @@ server.get("/highscore/:score", function (req, res, next) {
     };
   }
 
-  bot
-    .setGameScore(query.from.id, score, options)
-    .then((b) => {
-      return res.status(200).send("Score added successfully");
-    })
-    .catch((err) => {
-      if (
-        err.response.body.description === "Bad Request: BOT_SCORE_NOT_MODIFIED"
-      ) {
-        return res
-          .status(204)
-          .send("New score is inferior to user's previous one");
-      }
-      return res.status(500);
-    });
-  return;
+  // ===== Obfuscation decoding starts =====
+  // Change this part if you want to use your own obfuscation method
+  const obfuscatedScore = BigInt(req.params.score);
+
+  const realScore = Math.round(Number(obfuscatedScore / token));
+
+  // If the score is valid
+  if (BigInt(realScore) * token == obfuscatedScore) {
+    // ===== Obfuscation decoding ends =====
+    bot
+      .setGameScore(query.from.id, realScore, options)
+      .then((b) => {
+        return res.status(200).send("Score added successfully");
+      })
+      .catch((err) => {
+        if (
+          err.response.body.description ===
+          "Bad Request: BOT_SCORE_NOT_MODIFIED"
+        ) {
+          return res
+            .status(204)
+            .send("New score is inferior to user's previous one");
+        } else {
+          return res.status(500);
+        }
+      });
+    return;
+  } else {
+    return res.status(400).send("Are you cheating ?");
+  }
 });
+
 server.listen(port);

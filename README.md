@@ -32,5 +32,7 @@ In this app, we will only do two things related to the bot:
 * Add a `.env` file with the following content:
   ```
   BOT_TOKEN=<your-telegram-bot-token>
+  SCORE_TOKEN = "<your-score-token-1>;<your-score-token-2>;..."
   ```
+  The score tokens are the numbers you will use to obfuscate the score. They must be also set in the Unity game.
 * You're good to go.
