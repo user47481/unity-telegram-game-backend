@@ -3,13 +3,13 @@ const express = require("express");
 const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 
-const gameName = "TestGame";
+const gameName = "GigoClick";
 const webURL = "unity-telegram-game-backend-game-instance.onrender.com";
 
 const server = express();
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8086;
 
 const SCORE_TOKEN = process.env.SCORE_TOKEN.split(";").map((t) => BigInt(t));
 
