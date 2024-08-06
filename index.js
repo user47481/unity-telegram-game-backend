@@ -4,7 +4,7 @@ const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 
 const gameName = "GigoClick";
-const webURL = "unity-telegram-game-backend-game-instance.onrender.com";
+const webURL = "unity-telegram-game-backend.onrender.com";
 
 const server = express();
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
